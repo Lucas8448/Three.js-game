@@ -303,8 +303,7 @@
           lerp(n001, n101, u), w),
         lerp(
           lerp(n010, n110, u),
-          lerp(n011, n111, u), w),
-       v);
+          lerp(n011, n111, u), w),v);
   };
 
 })(this);
@@ -313,7 +312,9 @@
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setPixelRatio( window.devicePixelRatio);
-renderer.setSize( window.innerWidth, window.innerHeight );
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 document.body.appendChild( renderer.domElement );
 
 var scene = new THREE.Scene();
@@ -323,7 +324,7 @@ let height = window.innerHeight;
 let width = window.innerWidth;
 // Create a basic perspective camera
 const camera = new THREE.PerspectiveCamera( 45, width / height, 1, 30000);
-camera.position.z = 4;
+camera.position.set(0, 100 ,0);
 var controls = new THREE.OrbitControls(camera);
 
 // Configure renderer clear color
@@ -335,6 +336,14 @@ renderer.setSize( window.innerWidth, window.innerHeight );
 // Append Renderer to DOM
 document.body.appendChild( renderer.domElement );
 
+const textureloader = new THREE.TextureLoader();
+const grass_block = textureloader.load('assets/textures/grass_block.png');
+
+const directionalLight = new THREE.DirectionalLight( 0xffffff );
+directionalLight.position.y = 100;
+directionalLight.position.z = 50;
+directionalLight.castShadow = true;
+scene.add( directionalLight );
 // ------------------------------------------------
 // FUN STARTS HERE
 // ------------------------------------------------
@@ -346,7 +355,7 @@ document.addEventListener( 'mousewheel', (event) => {
 //create all the different blocks
 function stoneBlock(x, y, z) {
     const geometry = new THREE.BoxBufferGeometry( 1, 1, 1 );
-    const material = new THREE.MeshBasicMaterial( { color: 0x808080 } );
+    const material = new THREE.MeshBasicMaterial( { color: 0x808080, vertexColors: true } );
     const cube = new THREE.Mesh( geometry, material );
     cube.position.set(x, y, z);
     scene.add( cube );
@@ -354,7 +363,7 @@ function stoneBlock(x, y, z) {
 
 function grassBlock(x, y, z) {
     const geometry = new THREE.BoxBufferGeometry(1, 1, 1);
-    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00});
+    const material = new THREE.MeshStandardMaterial({ color: 0x1E821E});
     const cube = new THREE.Mesh(geometry, material);
     cube.position.set(x, y, z);
     scene.add(cube);
@@ -370,9 +379,9 @@ function waterBlock(x, y, z) {
 
 async function draw() {
   //create 3d terrain using noise()
-  for (let x = 0; x < 500; x++) {
-      for (let z = 0; z < 500; z++) {
-        let y = Math.round(noise.perlin2(x / 100, z / 100) * 30 + 5);
+  for (let x = -100; x < 100; x++) {
+      for (let z = -100; z < 100; z++) {
+        let y = Math.round(noise.perlin2(x / 80, z / 80) * 30 + 5);
         //generate terrain
         if (y <= 0) {
           waterBlock(x, 0, z);
