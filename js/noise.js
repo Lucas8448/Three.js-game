@@ -235,20 +235,20 @@
     // The result is scaled to return values in the interval [-1,1].
     return 32 * (n0 + n1 + n2 + n3);
 
-  };
+};
 
   // ##### Perlin noise stuff
 
-  function fade(t) {
+function fade(t) {
     return t*t*t*(t*(t*6-15)+10);
-  }
+}
 
-  function lerp(a, b, t) {
+function lerp(a, b, t) {
     return (1-t)*a + t*b;
-  }
+}
 
   // 2D Perlin Noise
-  module.perlin2 = function(x, y) {
+    module.perlin2 = function(x, y) {
     // Find unit grid cell containing point
     var X = Math.floor(x), Y = Math.floor(y);
     // Get relative xy coordinates of point within that cell
@@ -269,140 +269,42 @@
     return lerp(
         lerp(n00, n10, u),
         lerp(n01, n11, u),
-       fade(y));
-  };
+        fade(y));
+};
 
   // 3D Perlin Noise
-  module.perlin3 = function(x, y, z) {
-    // Find unit grid cell containing point
-    var X = Math.floor(x), Y = Math.floor(y), Z = Math.floor(z);
-    // Get relative xyz coordinates of point within that cell
-    x = x - X; y = y - Y; z = z - Z;
-    // Wrap the integer cells at 255 (smaller integer period can be introduced here)
-    X = X & 255; Y = Y & 255; Z = Z & 255;
+    module.perlin3 = function (x, y, z) {
+        // Find unit grid cell containing point
+        var X = Math.floor(x), Y = Math.floor(y), Z = Math.floor(z);
+        // Get relative xyz coordinates of point within that cell
+        x = x - X; y = y - Y; z = z - Z;
+        // Wrap the integer cells at 255 (smaller integer period can be introduced here)
+        X = X & 255; Y = Y & 255; Z = Z & 255;
 
-    // Calculate noise contributions from each of the eight corners
-    var n000 = gradP[X+  perm[Y+  perm[Z  ]]].dot3(x,   y,     z);
-    var n001 = gradP[X+  perm[Y+  perm[Z+1]]].dot3(x,   y,   z-1);
-    var n010 = gradP[X+  perm[Y+1+perm[Z  ]]].dot3(x,   y-1,   z);
-    var n011 = gradP[X+  perm[Y+1+perm[Z+1]]].dot3(x,   y-1, z-1);
-    var n100 = gradP[X+1+perm[Y+  perm[Z  ]]].dot3(x-1,   y,   z);
-    var n101 = gradP[X+1+perm[Y+  perm[Z+1]]].dot3(x-1,   y, z-1);
-    var n110 = gradP[X+1+perm[Y+1+perm[Z  ]]].dot3(x-1, y-1,   z);
-    var n111 = gradP[X+1+perm[Y+1+perm[Z+1]]].dot3(x-1, y-1, z-1);
+        // Calculate noise contributions from each of the eight corners
+        var n000 = gradP[X + perm[Y + perm[Z]]].dot3(x, y, z);
+        var n001 = gradP[X + perm[Y + perm[Z + 1]]].dot3(x, y, z - 1);
+        var n010 = gradP[X + perm[Y + 1 + perm[Z]]].dot3(x, y - 1, z);
+        var n011 = gradP[X + perm[Y + 1 + perm[Z + 1]]].dot3(x, y - 1, z - 1);
+        var n100 = gradP[X + 1 + perm[Y + perm[Z]]].dot3(x - 1, y, z);
+        var n101 = gradP[X + 1 + perm[Y + perm[Z + 1]]].dot3(x - 1, y, z - 1);
+        var n110 = gradP[X + 1 + perm[Y + 1 + perm[Z]]].dot3(x - 1, y - 1, z);
+        var n111 = gradP[X + 1 + perm[Y + 1 + perm[Z + 1]]].dot3(x - 1, y - 1, z - 1);
 
-    // Compute the fade curve value for x, y, z
-    var u = fade(x);
-    var v = fade(y);
-    var w = fade(z);
+        // Compute the fade curve value for x, y, z
+        var u = fade(x);
+        var v = fade(y);
+        var w = fade(z);
 
-    // Interpolate
-    return lerp(
-        lerp(
-          lerp(n000, n100, u),
-          lerp(n001, n101, u), w),
-        lerp(
-          lerp(n010, n110, u),
-          lerp(n011, n111, u), w),v);
-  };
+        // Interpolate
+        return lerp(
+            lerp(
+                lerp(n000, n100, u),
+                lerp(n001, n101, u), w),
+            lerp(
+                lerp(n010, n110, u),
+                lerp(n011, n111, u), w), v);
+    };
 
 })(this);
 //perlin.js
-
-
-const renderer = new THREE.WebGLRenderer();
-renderer.setPixelRatio( window.devicePixelRatio);
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-document.body.appendChild( renderer.domElement );
-
-var scene = new THREE.Scene();
-noise.seed(Math.random());
-
-let height = window.innerHeight;
-let width = window.innerWidth;
-// Create a basic perspective camera
-const camera = new THREE.PerspectiveCamera( 45, width / height, 1, 30000);
-camera.position.set(0, 100 ,0);
-var controls = new THREE.OrbitControls(camera);
-
-// Configure renderer clear color
-renderer.setClearColor("#000000");
-
-// Configure renderer size
-renderer.setSize( window.innerWidth, window.innerHeight );
-
-// Append Renderer to DOM
-document.body.appendChild( renderer.domElement );
-
-const textureloader = new THREE.TextureLoader();
-const grass_block = textureloader.load('assets/textures/grass_block.png');
-
-const directionalLight = new THREE.DirectionalLight( 0xffffff );
-directionalLight.position.y = 100;
-directionalLight.position.z = 50;
-directionalLight.castShadow = true;
-scene.add( directionalLight );
-// ------------------------------------------------
-// FUN STARTS HERE
-// ------------------------------------------------
-
-document.addEventListener( 'mousewheel', (event) => {
-    camera.position.z +=event.deltaY/500;
-});
-
-//create all the different blocks
-function stoneBlock(x, y, z) {
-    const geometry = new THREE.BoxBufferGeometry( 1, 1, 1 );
-    const material = new THREE.MeshBasicMaterial( { color: 0x808080, vertexColors: true } );
-    const cube = new THREE.Mesh( geometry, material );
-    cube.position.set(x, y, z);
-    scene.add( cube );
-}
-
-function grassBlock(x, y, z) {
-    const geometry = new THREE.BoxBufferGeometry(1, 1, 1);
-    const material = new THREE.MeshStandardMaterial({ color: 0x1E821E});
-    const cube = new THREE.Mesh(geometry, material);
-    cube.position.set(x, y, z);
-    scene.add(cube);
-}
-
-function waterBlock(x, y, z) {
-    const geometry = new THREE.BoxBufferGeometry(1, 1, 1);
-    const material = new THREE.MeshBasicMaterial({ color: 0x0000ff });
-    const cube = new THREE.Mesh(geometry, material);
-    cube.position.set(x, y, z);
-    scene.add(cube);
-}
-
-async function draw() {
-  //create 3d terrain using noise()
-  for (let x = -100; x < 100; x++) {
-      for (let z = -100; z < 100; z++) {
-        let y = Math.round(noise.perlin2(x / 80, z / 80) * 30 + 5);
-        //generate terrain
-        if (y <= 0) {
-          waterBlock(x, 0, z);
-        } else if (y < 40) {
-          grassBlock(x, y, z);
-        } else {
-          stoneBlock(x, y, z);
-        }
-    }
-  }
-}
-
-draw();
-// Render Loop
-var render = function () {
-    requestAnimationFrame( render );
-
-  console.log( renderer.info.render.triangles );
-  controls.update();
-  // Render the scene
-  renderer.render(scene, camera);
-};
-
-render();
