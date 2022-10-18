@@ -12,6 +12,18 @@ document.body.appendChild( renderer.domElement );
 // init scene
 var scene = new THREE.Scene();
 
+// world save
+const save = () => {
+  const output = scene.toJSON();
+  const data = JSON.stringify(output);
+  const blob = new Blob([data], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.download = 'world.json';
+  link.href = url;
+  link.click();
+}
+
 // create seed
 noise.seed(Math.random() * 100000);
 
@@ -21,6 +33,7 @@ let width = window.innerWidth;
 const camera = new THREE.PerspectiveCamera( 45, width / height, 1, 30000);
 camera.position.set(0, 100 ,0);
 var controls = new THREE.OrbitControls(camera);
+
 
 // directional light
 const directionalLight = new THREE.DirectionalLight( 0xffffff );
@@ -39,7 +52,7 @@ function stoneBlock(x, y, z) {
 }
 
 function grassBlock(x, y, z) {
-    const geometry = new THREE.BoxBufferGeometry(1, 1, 1);
+  const geometry = new THREE.BoxBufferGeometry(1, 1, 1);
     const material = new THREE.MeshStandardMaterial({ color: 0x1E821E});
     const cube = new THREE.Mesh(geometry, material);
     cube.position.set(x, y, z);
@@ -48,10 +61,26 @@ function grassBlock(x, y, z) {
 
 function waterBlock(x, y, z) {
     const geometry = new THREE.BoxBufferGeometry(1, 1, 1);
-    const material = new THREE.MeshBasicMaterial({ color: 0x0000ff });
+    const material = new THREE.MeshStandardMaterial({ color: 0x0000ff });
     const cube = new THREE.Mesh(geometry, material);
     cube.position.set(x, y, z);
     scene.add(cube);
+}
+
+function logBlock(x, y, z) {
+  const geometry = new THREE.BoxBufferGeometry(1, 1, 1);
+  const material = new THREE.MeshStandardMaterial({ color: 0x725c42 });
+  const cube = new THREE.Mesh(geometry, material);
+  cube.position.set(x, y, z);
+  scene.add(cube);
+}
+
+function leafBlock(x, y, z) {
+  const geometry = new THREE.BoxBufferGeometry(1, 1, 1);
+  const material = new THREE.MeshStandardMaterial({ color: 0x618a3d });
+  const cube = new THREE.Mesh(geometry, material);
+  cube.position.set(x, y, z);
+  scene.add(cube);
 }
 
 async function draw() {
@@ -67,6 +96,25 @@ async function draw() {
         } else {
           stoneBlock(x, y, z);
         }
+        // generate trees
+        if (y > 2 && y < 15) {
+          if (Math.random() < 0.0025) {
+            logBlock(x, y + 1, z);
+            logBlock(x, y + 2, z);
+            logBlock(x, y + 3, z);
+            leafBlock(x, y + 4, z);
+            leafBlock(x + 1, y + 4, z);
+            leafBlock(x - 1, y + 4, z);
+            leafBlock(x, y + 4, z + 1);
+            leafBlock(x, y + 4, z - 1);
+            leafBlock(x + 1, y + 4, z + 1);
+            leafBlock(x - 1, y + 4, z - 1);
+            leafBlock(x + 1, y + 4, z - 1);
+            leafBlock(x - 1, y + 4, z + 1);
+            leafBlock(x, y + 5, z);
+          }
+        }
+      
     }
   }
 }
@@ -83,3 +131,4 @@ var render = function () {
 };
 
 render();
+save();
