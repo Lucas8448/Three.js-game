@@ -1,2 +1,5 @@
 # Three.js-game
-Three.js version of game made in p5.js and python
+Block game made with three.js 
+
+# Terrain
+The terrain is made using a simple perlin noise algorithm

@@ -4,7 +4,7 @@ renderer.setPixelRatio( window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-renderer.setClearColor("#000000");
+renderer.setClearColor("#B5FBFF");
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 document.body.appendChild( renderer.domElement );
@@ -37,7 +37,7 @@ var controls = new THREE.OrbitControls(camera);
 
 // directional light
 const directionalLight = new THREE.DirectionalLight( 0xffffff );
-directionalLight.position.y = 100;
+directionalLight.position.y = 2000;
 directionalLight.position.z = 50;
 directionalLight.castShadow = true;
 scene.add( directionalLight );
@@ -61,7 +61,7 @@ function grassBlock(x, y, z) {
 
 function waterBlock(x, y, z) {
     const geometry = new THREE.BoxBufferGeometry(1, 1, 1);
-    const material = new THREE.MeshStandardMaterial({ color: 0x0000ff });
+    const material = new THREE.MeshBasicMaterial({ color: 0x0000ff });
     const cube = new THREE.Mesh(geometry, material);
     cube.position.set(x, y, z);
     scene.add(cube);
@@ -69,7 +69,7 @@ function waterBlock(x, y, z) {
 
 function logBlock(x, y, z) {
   const geometry = new THREE.BoxBufferGeometry(1, 1, 1);
-  const material = new THREE.MeshStandardMaterial({ color: 0x725c42 });
+  const material = new THREE.MeshBasicMaterial({ color: 0x42280E });
   const cube = new THREE.Mesh(geometry, material);
   cube.position.set(x, y, z);
   scene.add(cube);
@@ -87,18 +87,18 @@ async function draw() {
   //create 3d terrain using noise.perlin()
   for (let x = -100; x < 100; x++) {
       for (let z = -100; z < 100; z++) {
-        let y = Math.round(noise.perlin2(x / 80, z / 80) * 30 + 5);
+        let y = Math.round(noise.perlin2(x / 120, z / 120) * 60 + 5);
         //generate terrain
         if (y <= 0) {
           waterBlock(x, 0, z);
-        } else if (y < 15 && y > 0) {
+        } else if (y < 30 && y > 0) {
           grassBlock(x, y, z);
         } else {
           stoneBlock(x, y, z);
         }
         // generate trees
-        if (y > 2 && y < 15) {
-          if (Math.random() < 0.0025) {
+        if (y > 2 && y < 30) {
+          if (Math.random() < 0.003) {
             logBlock(x, y + 1, z);
             logBlock(x, y + 2, z);
             logBlock(x, y + 3, z);
@@ -110,7 +110,7 @@ async function draw() {
             leafBlock(x + 1, y + 4, z + 1);
             leafBlock(x - 1, y + 4, z - 1);
             leafBlock(x + 1, y + 4, z - 1);
-            leafBlock(x - 1, y + 4, z + 1);
+            leafBlock(x - 1, y + 4, z + 1); 
             leafBlock(x, y + 5, z);
           }
         }
