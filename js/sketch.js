@@ -9,6 +9,9 @@ renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 document.body.appendChild( renderer.domElement );
 
+//document.body.appendChild(VRButton.createButton(renderer));
+//renderer.xr.enabled = true;
+
 // init scene
 var scene = new THREE.Scene();
 
